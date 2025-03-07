@@ -6,8 +6,8 @@
 }
 
 :root {
-    --primary-color: #1f2d3d;
-    --secondary-color: #3498db;
+    --primary-color: #74289f;
+    --secondary-color: #0d1349;
     --accent-color: #e74c3c;
     --text-color: #333;
     --light-color: #f5f5f5;
@@ -127,7 +127,7 @@ nav a:hover:after, nav a.active:after {
 /* Hero 部分 */
 .hero {
     height: 70vh;
-    background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://source.unsplash.com/random/1920x1080/?cinema,movie');
+    background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('1_HmtUbdTVR4xLU4a8nPri2w.jpg');
     background-size: cover;
     background-position: center;
     color: white;
