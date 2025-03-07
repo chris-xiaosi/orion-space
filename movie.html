@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>电影播放 - 猎户座影像空间</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        /* 电影播放页面的特定样式 */
+        .movie-container {
+            padding: 2rem 5%;
+        }
+
+        .movie-header {
+            display: flex;
+            margin-bottom: 2rem;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+        }
+
+        .movie-poster-large {
+            width: 300px;
+            flex-shrink: 0;
+        }
+
+        .movie-poster-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .movie-details {
+            padding: 2rem;
+            flex-grow: 1;
+        }
+
+        .movie-title-large {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+
+        .original-title {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+
+        .movie-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .movie-stat {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .movie-stat i {
+            color: var(--secondary-color);
+        }
+
+        .ratings-large {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .rating-large {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            width: 100px;
+            text-align: center;
+        }
+
+        .rating-source-large {
+            margin-bottom: 0.5rem;
+        }
+
+        .rating-score-large {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .movie-description {
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+
+        .movie-genres-large {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .genre-tag-large {
+            background-color: rgba(52, 152, 219, 0.1);
+            color: var(--secondary-color);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .video-container {
+            margin-bottom: 2rem;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            background-color: black;
+            position: relative;
+            padding-top: 56.25%; /* 16:9 宽高比 */
+        }
+
+        .video-player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+        }
+
+        .comments-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: var(--box-shadow);
+        }
+
+        .comments-section h2 {
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            color: var(--primary-color);
+        }
+
+        .comments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .comment-card {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1.5rem;
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.8rem;
+        }
+
+        .comment-user {
+            font-weight: 600;
+        }
+
+        .comment-platform {
+            background-color: rgba(52, 152, 219, 0.1);
+            color: var(--secondary-color);
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+
+        .comment-content {
+            line-height: 1.6;
+            margin-bottom: 0.8rem;
+        }
+
+        .comment-footer {
+            display: flex;
+            justify-content: space-between;
+            color: #777;
+            font-size: 0.9rem;
+        }
+
+        .comment-rating {
+            display: flex;
+            gap: 3px;
+        }
+
+        .star {
+            color: gold;
+        }
+
+        .related-movies {
+            margin-top: 2rem;
+        }
+
+        .related-movies h2 {
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            color: var(--primary-color);
+        }
+
+        .related-movies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 2rem;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 992px) {
+            .movie-header {
+                flex-direction: column;
+            }
+            
+            .movie-poster-large {
+                width: 100%;
+                height: 400px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .movie-stats {
+                flex-direction: column;
+                gap: 0.8rem;
+            }
+            
+            .ratings-large {
+                flex-wrap: wrap;
+            }
+            
+            .movie-poster-large {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <h1><i class="fa-solid fa-film"></i> <a href="index.html">猎户座影像空间</a></h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">首页</a></li>
+                <li><a href="categories.html">分类</a></li>
+                <li><a href="trending.html">热门</a></li>
+                <li><a href="about.html">关于我们</a></li>
+            </ul>
+        </nav>
+        <div class="search-container">
+            <input type="text" placeholder="搜索电影..." id="search-input">
+            <button id="search-btn"><i class="fa-solid fa-search"></i></button>
+        </div>
+    </header>
+
+    <main>
+        <div class="movie-container" id="movie-container">
+            <!-- 电影内容将通过JavaScript动态加载 -->
+            <div class="loading">
+                <i class="fas fa-spinner fa-spin"></i> 加载中...
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <h2>猎户座影像空间</h2>
+                <p>分享优质电影，连接电影爱好者</p>
+            </div>
+            <div class="footer-links">
+                <h3>快速链接</h3>
+                <ul>
+                    <li><a href="index.html">首页</a></li>
+                    <li><a href="categories.html">分类</a></li>
+                    <li><a href="trending.html">热门</a></li>
+                    <li><a href="about.html">关于我们</a></li>
+                </ul>
+            </div>
+            <div class="footer-social">
+                <h3>关注我们</h3>
+                <div class="social-icons">
+                    <a href="#"><i class="fa-brands fa-weibo"></i></a>
+                    <a href="#"><i class="fa-brands fa-weixin"></i></a>
+                    <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2023 猎户座影像空间. 保留所有权利.</p>
+        </div>
+    </footer>
+
+    <script>
+        // 获取URL参数中的电影ID
+        function getMovieIdFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id');
+        }
+
+        // 获取电影数据
+        async function getMovieData() {
+            const movieId = getMovieIdFromURL();
+            
+            if (!movieId) {
+                showError('未找到电影ID');
+                return null;
+            }
+            
+            // 在实际应用中，这里应该从服务器API获取数据
+            // 这里使用硬编码的数据进行示例
+            const moviesData = [
+                {
+                    id: 1,
+                    title: "肖申克的救赎",
+                    originalTitle: "The Shawshank Redemption",
+                    year: 1994,
+                    director: "弗兰克·德拉邦特",
+                    genres: ["剧情", "犯罪"],
+                    duration: 142,
+                    posterUrl: "https://img2.doubanio.com/view/photo/s_ratio_poster/public/p480747492.jpg",
+                    doubanRating: 9.7,
+                    imdbRating: 9.3,
+                    description: "两个被囚禁的男人多年来建立了一种非凡的友谊，通过共同的体面和一些小小的胜利找到了救赎。电影改编自斯蒂芬·金的中篇小说《丽塔·海华丝与肖申克的救赎》，被誉为电影史上的经典之作。",
+                    videoUrl: "https://example.com/videos/shawshank.mp4" // 实际应用中应该是真实视频URL
+                },
+                {
+                    id: 2,
+                    title: "霸王别姬",
+                    originalTitle: "霸王别姬",
+                    year: 1993,
+                    director: "陈凯歌",
+                    genres: ["剧情", "爱情", "同性"],
+                    duration: 171,
+                    posterUrl: "https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2561716440.jpg",
+                    doubanRating: 9.6,
+                    imdbRating: 8.1,
+                    description: "段小楼与程蝶衣是一对在京剧舞台上合作多年的搭档，程蝶衣饰演旦角，段小楼饰演生角，二人合称"小楼蝶衣"。他们的人生被一段随历史风云变幻的爱恨情仇缠绕，历经了半个世纪的动荡。",
+                    videoUrl: "https://example.com/videos/farewell.mp4"
+                },
+                {
+                    id: 3,
+                    title: "阿甘正传",
+                    originalTitle: "Forrest Gump",
+                    year: 1994,
+                    director: "罗伯特·泽米吉斯",
+                    genres: ["剧情", "爱情"],
+                    duration: 142,
+                    posterUrl: "https://img2.doubanio.com/view/photo/s_ratio_poster/public/p2372307693.jpg",
+                    doubanRating: 9.5,
+                    imdbRating: 8.8,
+                    description: "阿甘是一个智商只有75的低能儿，但他的一生如同充满传奇色彩的美国梦，他先后成为大学橄榄球明星、越战英雄、乒乓球外交使者、亿万富翁。阿甘的一生虽然坎坷，但他凭借着单纯的心灵和坚韧不拔的毅力，最终获得了幸福。",
+                    videoUrl: "https://example.com/videos/forrest_gump.mp4"
+                },
+                {
+                    id: 4,
+                    title: "泰坦尼克号",
+                    originalTitle: "Titanic",
+                    year: 1997,
+                    director: "詹姆斯·卡梅隆",
+                    genres: ["剧情", "爱情", "灾难"],
+                    duration: 194,
+                    posterUrl: "https://img9.doubanio.com/view/photo/s_ratio_poster/public/p457760035.jpg",
+                    doubanRating: 9.4,
+                    imdbRating: 7.9,
+                    description: "1912年，举世瞩目的豪华客轮泰坦尼克号开始了它的处女航。穷画家杰克和贵族女露丝在船上相遇并相爱，然而泰坦尼克号很快就要撞上冰山。这是一个发生在灾难之中的爱情故事。",
+                    videoUrl: "https://example.com/videos/titanic.mp4"
+                }
+            ];
+            
+            // 电影评论数据
+            const movieComments = {
+                1: [
+                    { user: "电影爱好者001", platform: "豆瓣", content: "这部电影改变了我的人生观，绝对的经典之作！希望是个好东西，也许是最好的，好东西是不会消亡的。", rating: 5, date: "2023-03-15" },
+                    { user: "FilmFan123", platform: "IMDb", content: "One of the greatest movies ever made. Tim Robbins and Morgan Freeman deliver outstanding performances.", rating: 5, date: "2022-11-20" },
+                    { user: "光影追逐者", platform: "豆瓣", content: "希望是件美好的事物，也许是最好的，而美好的事物永不消逝。", rating: 5, date: "2022-07-08" },
+                    { user: "CinemaLover", platform: "IMDb", content: "A perfect movie with an incredible story about hope and redemption. The acting is superb, especially from Morgan Freeman.", rating: 5, date: "2022-05-11" }
+                ],
+                2: [
+                    { user: "梦中人", platform: "豆瓣", content: "中国电影的巅峰之作，张国荣的表演令人窒息。", rating: 5, date: "2023-01-12" },
+                    { user: "AsianFilmBuff", platform: "IMDb", content: "A masterpiece of Chinese cinema. The story spans decades of Chinese history and culture.", rating: 4, date: "2022-09-03" },
+                    { user: "老电影迷", platform: "豆瓣", content: "每一次重看都有新的感受，张国荣和巩俐的演技超凡。", rating: 5, date: "2022-06-18" }
+                ],
+                3: [
+                    { user: "小确幸", platform: "豆瓣", content: "生活就像一盒巧克力，你永远不知道下一颗是什么味道。汤姆·汉克斯的演技令人叹服。", rating: 5, date: "2023-02-27" },
+                    { user: "MovieGoer22", platform: "IMDb", content: "Tom Hanks deserved his Oscar for this role. The special effects were groundbreaking for its time.", rating: 5, date: "2022-12-05" },
+                    { user: "心之所向", platform: "豆瓣", content: "每次看都会被感动，阿甘的纯真打动了所有人。", rating: 5, date: "2022-08-14" }
+                ],
+                4: [
+                    { user: "浪漫主义者", platform: "豆瓣", content: "最伟大的爱情电影之一，莱昂纳多和凯特的化学反应无与伦比。", rating: 5, date: "2023-04-02" },
+                    { user: "TitanicFan", platform: "IMDb", content: "The ship sinking scenes are still impressive after all these years. A timeless love story.", rating: 4, date: "2022-10-09" },
+                    { user: "电影控", platform: "豆瓣", content: "卡梅隆的技术与艺术结合得恰到好处，一部经典灾难片。", rating: 4, date: "2022-05-21" }
+                ]
+            };
+            
+            // 获取特定电影
+            const movie = moviesData.find(m => m.id == movieId);
+            
+            if (!movie) {
+                showError('未找到该电影');
+                return null;
+            }
+            
+            // 添加评论到电影对象
+            if (movieComments[movieId]) {
+                movie.comments = movieComments[movieId];
+            } else {
+                movie.comments = [];
+            }
+            
+            // 获取相关电影（简单示例：同类型电影）
+            movie.relatedMovies = moviesData
+                .filter(m => m.id != movieId && m.genres.some(g => movie.genres.includes(g)))
+                .slice(0, 4);
+            
+            return movie;
+        }
+
+        // 显示电影详情
+        function displayMovieDetails(movie) {
+            const movieContainer = document.getElementById('movie-container');
+            
+            // 创建电影详情HTML
+            const movieHTML = `
+                <div class="movie-header">
+                    <div class="movie-poster-large">
+                        <img src="${movie.posterUrl}" alt="${movie.title}">
+                    </div>
+                    <div class="movie-details">
+                        <h1 class="movie-title-large">${movie.title}</h1>
+                        <p class="original-title">${movie.originalTitle} (${movie.year})</p>
+                        
+                        <div class="movie-stats">
+                            <div class="movie-stat">
+                                <i class="fas fa-user"></i>
+                                <span>导演: ${movie.director}</span>
+                            </div>
+                            <div class="movie-stat">
+                                <i class="fas fa-clock"></i>
+                                <span>片长: ${movie.duration}分钟</span>
+                            </div>
+                        </div>
+                        
+                        <div class="ratings-large">
+                            <div class="rating-large">
+                                <div class="rating-source-large">
+                                    <img src="https://img.icons8.com/color/48/000000/douban.png" alt="豆瓣" width="32">
+                                </div>
+                                <div class="rating-score-large">${movie.doubanRating}</div>
+                                <div>豆瓣评分</div>
+                            </div>
+                            <div class="rating-large">
+                                <div class="rating-source-large">
+                                    <img src="https://img.icons8.com/color/48/000000/imdb.png" alt="IMDb" width="32">
+                                </div>
+                                <div class="rating-score-large">${movie.imdbRating}</div>
+                                <div>IMDb评分</div>
+                            </div>
+                        </div>
+                        
+                        <div class="movie-description">
+                            ${movie.description}
+                        </div>
+                        
+                        <div class="movie-genres-large">
+                            ${movie.genres.map(genre => `<span class="genre-tag-large">${genre}</span>`).join('')}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="video-container">
+                    <div class="video-player">
+                        <!-- 实际应用中应该是真实视频播放器 -->
+                        <video width="100%" height="100%" controls poster="${movie.posterUrl}">
+                            <source src="${movie.videoUrl}" type="video/mp4">
+                            您的浏览器不支持视频播放。
+                        </video>
+                    </div>
+                </div>
+                
+                <div class="comments-section">
+                    <h2>观众评论 (${movie.comments.length})</h2>
+                    <div class="comments-list">
+                        ${movie.comments.map(comment => `
+                            <div class="comment-card">
+                                <div class="comment-header">
+                                    <div class="comment-user">${comment.user}</div>
+                                    <div class="comment-platform">${comment.platform}</div>
+                                </div>
+                                <div class="comment-content">${comment.content}</div>
+                                <div class="comment-footer">
+                                    <div class="comment-rating">
+                                        ${Array(comment.rating).fill('<span class="star"><i class="fas fa-star"></i></span>').join('')}
+                                    </div>
+                                    <div class="comment-date">${comment.date}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                ${movie.relatedMovies.length > 0 ? `
+                    <div class="related-movies">
+                        <h2>相关推荐</h2>
+                        <div class="related-movies-grid">
+                            ${movie.relatedMovies.map(relatedMovie => `
+                                <div class="movie-card" onclick="location.href='movie.html?id=${relatedMovie.id}'">
+                                    <div class="movie-poster">
+                                        <img src="${relatedMovie.posterUrl}" alt="${relatedMovie.title}" loading="lazy">
+                                    </div>
+                                    <div class="movie-info">
+                                        <h3 class="movie-title">${relatedMovie.title}</h3>
+                                        <div class="movie-meta">
+                                            <span>${relatedMovie.year}</span>
+                                            <div class="movie-rating">
+                                                <div class="rating-source" title="豆瓣评分">
+                                                    <img src="https://img.icons8.com/color/48/000000/douban.png" alt="豆瓣">
+                                                    <span class="rating-score">${relatedMovie.doubanRating}</span>
+                                                </div>
+                                                <div class="rating-source" title="IMDb评分">
+                                                    <img src="https://img.icons8.com/color/48/000000/imdb.png" alt="IMDb">
+                                                    <span class="rating-score">${relatedMovie.imdbRating}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="movie-genre">
+                                            ${relatedMovie.genres.map(genre => `<span class="genre-tag">${genre}</span>`).join('')}
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+            `;
+            
+            movieContainer.innerHTML = movieHTML;
+            document.title = `${movie.title} - 猎户座影像空间`;
+        }
+
+        // 显示错误信息
+        function showError(message) {
+            const movieContainer = document.getElementById('movie-container');
+            movieContainer.innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <p>${message}</p>
+                    <a href="index.html" class="cta-button">返回首页</a>
+                </div>
+            `;
+        }
+
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', async function() {
+            // 获取电影数据并显示
+            const movie = await getMovieData();
+            if (movie) {
+                displayMovieDetails(movie);
+            }
+            
+            // 搜索功能
+            const searchInput = document.getElementById('search-input');
+            const searchBtn = document.getElementById('search-btn');
+            
+            searchBtn.addEventListener('click', function() {
+                if (searchInput.value.trim()) {
+                    alert(`你正在搜索: ${searchInput.value}\n这个功能将在后续版本中实现。`);
+                }
+            });
+            
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && searchInput.value.trim()) {
+                    alert(`你正在搜索: ${searchInput.value}\n这个功能将在后续版本中实现。`);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

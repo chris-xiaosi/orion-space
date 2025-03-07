@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>电影分类 - 猎户座影像空间</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        /* 分类页面的特定样式 */
+        .category-banner {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://source.unsplash.com/random/1920x600/?cinema,film');
+            background-size: cover;
+            background-position: center;
+            height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .banner-content h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .filter-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 0 5% 2rem;
+            box-shadow: var(--box-shadow);
+        }
+        
+        .filter-title {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+        
+        .filter-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+        
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            background-color: #f5f5f5;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .filter-btn:hover, .filter-btn.active {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .sort-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .sort-label {
+            font-weight: 500;
+        }
+        
+        .sort-select {
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 2rem;
+            padding: 0 5%;
+            margin-bottom: 3rem;
+        }
+        
+        .category-item {
+            position: relative;
+            height: 200px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .category-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .category-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+        
+        .category-item:hover img {
+            transform: scale(1.05);
+        }
+        
+        .category-name {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .category-name span {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 400;
+            margin-top: 5px;
+            opacity: 0.8;
+        }
+        
+        .movies-container {
+            padding: 0 5%;
+            margin-bottom: 3rem;
+        }
+        
+        .category-section-title {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+        
+        .category-icon {
+            color: var(--secondary-color);
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 2rem 0;
+        }
+        
+        .page-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: white;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .page-btn:hover, .page-btn.active {
+            background-color: var(--secondary-color);
+            color: white;
+            border-color: var(--secondary-color);
+        }
+        
+        @media (max-width: 768px) {
+            .category-banner {
+                height: 180px;
+            }
+            
+            .banner-content h1 {
+                font-size: 2rem;
+            }
+            
+            .categories-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+            
+            .category-item {
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <h1><i class="fa-solid fa-film"></i> <a href="index.html">猎户座影像空间</a></h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">首页</a></li>
+                <li><a href="categories.html" class="active">分类</a></li>
+                <li><a href="trending.html">热门</a></li>
+                <li><a href="about.html">关于我们</a></li>
+            </ul>
+        </nav>
+        <div class="search-container">
+            <input type="text" placeholder="搜索电影..." id="search-input">
+            <button id="search-btn"><i class="fa-solid fa-search"></i></button>
+        </div>
+    </header>
+
+    <main>
+        <div class="category-banner">
+            <div class="banner-content">
+                <h1>探索电影分类</h1>
+                <p>找到最适合你的电影类型</p>
+            </div>
+        </div>
+        
+        <div class="filter-container">
+            <h2 class="filter-title">筛选条件</h2>
+            <div class="filter-options">
+                <button class="filter-btn active" data-genre="all">全部</button>
+                <button class="filter-btn" data-genre="action">动作</button>
+                <button class="filter-btn" data-genre="drama">剧情</button>
+                <button class="filter-btn" data-genre="comedy">喜剧</button>
+                <button class="filter-btn" data-genre="scifi">科幻</button>
+                <button class="filter-btn" data-genre="horror">恐怖</button>
+                <button class="filter-btn" data-genre="romance">爱情</button>
+                <button class="filter-btn" data-genre="animation">动画</button>
+                <button class="filter-btn" data-genre="crime">犯罪</button>
+                <button class="filter-btn" data-genre="adventure">冒险</button>
+                <button class="filter-btn" data-genre="documentary">纪录片</button>
+            </div>
+            
+            <div class="sort-container">
+                <span class="sort-label">排序方式:</span>
+                <select class="sort-select" id="sort-select">
+                    <option value="rating">评分</option>
+                    <option value="year-desc">年份(新→旧)</option>
+                    <option value="year-asc">年份(旧→新)</option>
+                    <option value="title">片名</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="categories-container">
+            <div class="categories-grid">
+                <div class="category-item" data-genre="action">
+                    <img src="https://source.unsplash.com/random/400x200/?action,movie" alt="动作片">
+                    <div class="category-name">
+                        动作片 <span>高能刺激，肾上腺素飙升</span>
+                    </div>
+                </div>
+                <div class="category-item" data-genre="drama">
+                    <img src="https://source.unsplash.com/random/400x200/?drama,movie" alt="剧情片">
+                    <div class="category-name">
+                        剧情片 <span>深入人心，引人深思</span>
+                    </div>
+                </div>
+                <div class="category-item" data-genre="comedy">
+                    <img src="https://source.unsplash.com/random/400x200/?comedy,movie" alt="喜剧片">
+                    <div class="category-name">
+                        喜剧片 <span>欢乐时光，轻松解压</span>
+                    </div>
+                </div>
+                <div class="category-item" data-genre="scifi">
+                    <img src="https://source.unsplash.com/random/400x200/?scifi,movie" alt="科幻片">
+                    <div class="category-name">
+                        科幻片 <span>探索未知，突破想象</span>
+                    </div>
+                </div>
+                <div class="category-item" data-genre="horror">
+                    <img src="https://source.unsplash.com/random/400x200/?horror,movie" alt="恐怖片">
+                    <div class="category-name">
+                        恐怖片 <span>惊悚刺激，挑战极限</span>
+                    </div>
+                </div>
+                <div class="category-item" data-genre="romance">
+                    <img src="https://source.unsplash.com/random/400x200/?romance,movie" alt="爱情片">
+                    <div class="category-name">
+                        爱情片 <span>唯美浪漫，感人至深</span>
+                    </div>
+                </div>
+                <div class="category-item" data-genre="animation">
+                    <img src="https://source.unsplash.com/random/400x200/?animation,movie" alt="动画片">
+                    <div class="category-name">
+                        动画片 <span>奇幻世界，童心未泯</span>
+                    </div>
+                </div>
+                <div class="category-item" data-genre="crime">
+                    <img src="https://source.unsplash.com/random/400x200/?crime,movie" alt="犯罪片">
+                    <div class="category-name">
+                        犯罪片 <span>悬疑迷案，推理解谜</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="movies-container">
+            <h2 class="category-section-title" id="current-genre-title">
+                <i class="fas fa-film category-icon"></i> 全部电影
+            </h2>
+            
+            <div class="movies-grid" id="movies-grid">
+                <!-- 电影将通过JavaScript动态加载 -->
+            </div>
+            
+            <div class="pagination" id="pagination">
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+                <button class="page-btn"><i class="fas fa-ellipsis-h"></i></button>
+                <button class="page-btn">10</button>
+                <button class="page-btn"><i class="fas fa-angle-right"></i></button>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <h2>猎户座影像空间</h2>
+                <p>分享优质电影，连接电影爱好者</p>
+            </div>
+            <div class="footer-links">
+                <h3>快速链接</h3>
+                <ul>
+                    <li><a href="index.html">首页</a></li>
+                    <li><a href="categories.html">分类</a></li>
+                    <li><a href="trending.html">热门</a></li>
+                    <li><a href="about.html">关于我们</a></li>
+                </ul>
+            </div>
+            <div class="footer-social">
+                <h3>关注我们</h3>
+                <div class="social-icons">
+                    <a href="#"><i class="fa-brands fa-weibo"></i></a>
+                    <a href="#"><i class="fa-brands fa-weixin"></i></a>
+                    <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2023 猎户座影像空间. 保留所有权利.</p>
+        </div>
+    </footer>
+
+    <script>
+        // 模拟电影数据
+        const allMovies = [
+            {
+                id: 1,
+                title: "肖申克的救赎",
+                originalTitle: "The Shawshank Redemption",
+                year: 1994,
+                director: "弗兰克·德拉邦特",
+                genres: ["剧情", "犯罪"],
+                duration: 142,
+                posterUrl: "https://img2.doubanio.com/view/photo/s_ratio_poster/public/p480747492.jpg",
+                doubanRating: 9.7,
+                imdbRating: 9.3,
+                genreEnglish: ["drama", "crime"]
+            },
+            {
+                id: 2,
+                title: "霸王别姬",
+                originalTitle: "霸王别姬",
+                year: 1993,
+                director: "陈凯歌",
+                genres: ["剧情", "爱情", "同性"],
+                duration: 171,
+                posterUrl: "https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2561716440.jpg",
+                doubanRating: 9.6,
+                imdbRating: 8.1,
+                genreEnglish: ["drama", "romance"]
+            },
+            {
+                id: 3,
+                title: "阿甘正传",
+                originalTitle: "Forrest Gump",
+                year: 1994,
+                director: "罗伯特·泽米吉斯",
+                genres: ["剧情", "爱情"],
+                duration: 142,
+                posterUrl: "https://img2.doubanio.com/view/photo/s_ratio_poster/public/p2372307693.jpg",
+                doubanRating: 9.5,
+                imdbRating: 8.8,
+                genreEnglish: ["drama", "romance"]
+            },
+            {
+                id: 4,
+                title: "泰坦尼克号",
+                originalTitle: "Titanic",
+                year: 1997,
+                director: "詹姆斯·卡梅隆",
+                genres: ["剧情", "爱情", "灾难"],
+                duration: 194,
+                posterUrl: "https://img9.doubanio.com/view/photo/s_ratio_poster/public/p457760035.jpg",
+                doubanRating: 9.4,
+                imdbRating: 7.9,
+                genreEnglish: ["drama", "romance"]
+            },
+            {
+                id: 5,
+                title: "这个杀手不太冷",
+                originalTitle: "Léon",
+                year: 1994,
+                director: "吕克·贝松",
+                genres: ["剧情", "动作", "犯罪"],
+                duration: 110,
+                posterUrl: "https://img2.doubanio.com/view/photo/s_ratio_poster/public/p511118051.jpg",
+                doubanRating: 9.4,
+                imdbRating: 8.5,
+                genreEnglish: ["drama", "action", "crime"]
+            },
+            {
+                id: 6,
+                title: "千与千寻",
+                originalTitle: "千と千尋の神隠し",
+                year: 2001,
+                director: "宫崎骏",
+                genres: ["动画", "奇幻", "冒险"],
+                duration: 125,
+                posterUrl: "https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2557573348.jpg",
+                doubanRating: 9.4,
+                imdbRating: 8.6,
+                genreEnglish: ["animation", "adventure"]
+            },
+            {
+                id: 7,
+                title: "盗梦空间",
+                originalTitle: "Inception",
+                year: 2010,
+                director: "克里斯托弗·诺兰",
+                genres: ["科幻", "悬疑", "冒险"],
+                duration: 148,
+                posterUrl: "https://img9.doubanio.com/view/photo/s_ratio_poster/public/p513344864.jpg",
+                doubanRating: 9.3,
+                imdbRating: 8.8,
+                genreEnglish: ["scifi", "adventure"]
+            },
+            {
+                id: 8,
+                title: "星际穿越",
+                originalTitle: "Interstellar",
+                year: 2014,
+                director: "克里斯托弗·诺兰",
+                genres: ["科幻", "冒险", "剧情"],
+                duration: 169,
+                posterUrl: "https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2614988097.jpg",
+                doubanRating: 9.3,
+                imdbRating: 8.6,
+                genreEnglish: ["scifi", "adventure", "drama"]
+            },
+            {
+                id: 9,
+                title: "疯狂动物城",
+                originalTitle: "Zootopia",
+                year: 2016,
+                director: "拜恩·霍华德",
+                genres: ["动画", "冒险", "喜剧"],
+                duration: 108,
+                posterUrl: "https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2315672647.jpg",
+                doubanRating: 9.2,
+                imdbRating: 8.0,
+                genreEnglish: ["animation", "adventure", "comedy"]
+            },
+            {
+                id: 10,
+                title: "死亡诗社",
+                originalTitle: "Dead Poets Society",
+                year: 1989,
+                director: "彼得·威尔",
+                genres: ["剧情"],
+                duration: 128,
+                posterUrl: "https://img3.doubanio.com/view/photo/s_ratio_poster/public/p479225321.jpg",
+                doubanRating: 9.1,
+                imdbRating: 8.1,
+                genreEnglish: ["drama"]
+            },
+            {
+                id: 11,
+                title: "寻梦环游记",
+                originalTitle: "Coco",
+                year: 2017,
+                director: "李·昂克里奇",
+                genres: ["动画", "冒险", "家庭"],
+                duration: 105,
+                posterUrl: "https://img9.doubanio.com/view/photo/s_ratio_poster/public/p2614500706.jpg",
+                doubanRating: 9.1,
+                imdbRating: 8.4,
+                genreEnglish: ["animation", "adventure"]
+            },
+            {
+                id: 12,
+                title: "教父",
+                originalTitle: "The Godfather",
+                year: 1972,
+                director: "弗朗西斯·福特·科波拉",
+                genres: ["剧情", "犯罪"],
+                duration: 175,
+                posterUrl: "https://img9.doubanio.com/view/photo/s_ratio_poster/public/p616779645.jpg",
+                doubanRating: 9.3,
+                imdbRating: 9.2,
+                genreEnglish: ["drama", "crime"]
+            }
+        ];
+
+        // 当前选中的分类和排序方式
+        let currentGenre = 'all';
+        let currentSort = 'rating';
+        let currentPage = 1;
+        const moviesPerPage = 8;
+
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 获取URL参数
+            const urlParams = new URLSearchParams(window.location.search);
+            const genreParam = urlParams.get('genre');
+            
+            if (genreParam) {
+                currentGenre = genreParam;
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    if (btn.dataset.genre === genreParam) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            }
+            
+            // 更新电影列表
+            updateMovies();
+            
+            // 添加筛选事件监听器
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentGenre = this.dataset.genre;
+                    currentPage = 1;
+                    updateMovies();
+                    updateURLParameter('genre', currentGenre);
+                });
+            });
+            
+            // 分类项点击事件
+            document.querySelectorAll('.category-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const genre = this.dataset.genre;
+                    document.querySelectorAll('.filter-btn').forEach(b => {
+                        if (b.dataset.genre === genre) {
+                            b.click();
+                        }
+                    });
+                });
+            });
+            
+            // 排序事件监听器
+            document.getElementById('sort-select').addEventListener('change', function() {
+                currentSort = this.value;
+                updateMovies();
+            });
+            
+            // 搜索功能
+            const searchBtn = document.getElementById('search-btn');
+            const searchInput = document.getElementById('search-input');
+            
+            searchBtn.addEventListener('click', function() {
+                performSearch(searchInput.value);
+            });
+            
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch(searchInput.value);
+                }
+            });
+        });
+
+        // 更新电影列表
+        function updateMovies() {
+            // 筛选电影
+            let filteredMovies = allMovies;
+            
+            if (currentGenre !== 'all') {
+                filteredMovies = allMovies.filter(movie => 
+                    movie.genreEnglish.includes(currentGenre)
+                );
+            }
+            
+            // 排序电影
+            switch (currentSort) {
+                case 'rating':
+                    filteredMovies.sort((a, b) => b.doubanRating - a.doubanRating);
+                    break;
+                case 'year-desc':
+                    filteredMovies.sort((a, b) => b.year - a.year);
+                    break;
+                case 'year-asc':
+                    filteredMovies.sort((a, b) => a.year - b.year);
+                    break;
+                case 'title':
+                    filteredMovies.sort((a, b) => a.title.localeCompare(b.title, 'zh-CN'));
+                    break;
+            }
+            
+            // 更新标题
+            const genreTitleMap = {
+                'all': '全部电影',
+                'action': '动作片',
+                'drama': '剧情片',
+                'comedy': '喜剧片',
+                'scifi': '科幻片',
+                'horror': '恐怖片',
+                'romance': '爱情片',
+                'animation': '动画片',
+                'crime': '犯罪片',
+                'adventure': '冒险片',
+                'documentary': '纪录片'
+            };
+            
+            document.getElementById('current-genre-title').innerHTML = 
+                `<i class="fas fa-film category-icon"></i> ${genreTitleMap[currentGenre] || '全部电影'} (${filteredMovies.length})`;
+            
+            // 分页
+            const totalPages = Math.ceil(filteredMovies.length / moviesPerPage);
+            const start = (currentPage - 1) * moviesPerPage;
+            const end = Math.min(start + moviesPerPage, filteredMovies.length);
+            const paginatedMovies = filteredMovies.slice(start, end);
+            
+            // 渲染电影列表
+            renderMovies(paginatedMovies);
+            
+            // 更新分页
+            updatePagination(totalPages);
+        }
+
+        // 渲染电影列表
+        function renderMovies(movies) {
+            const moviesGrid = document.getElementById('movies-grid');
+            moviesGrid.innerHTML = '';
+            
+            if (movies.length === 0) {
+                moviesGrid.innerHTML = `
+                    <div class="no-results">
+                        <i class="fas fa-film-slash"></i>
+                        <p>没有找到符合条件的电影</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            movies.forEach(movie => {
+                const movieCard = document.createElement('div');
+                movieCard.className = 'movie-card';
+                
+                movieCard.innerHTML = `
+                    <div class="movie-poster">
+                        <img src="${movie.posterUrl}" alt="${movie.title}" loading="lazy">
+                    </div>
+                    <div class="movie-info">
+                        <h3 class="movie-title">${movie.title}</h3>
+                        <div class="movie-meta">
+                            <span>${movie.year}</span>
+                            <div class="movie-rating">
+                                <div class="rating-source" title="豆瓣评分">
+                                    <img src="https://img.icons8.com/color/48/000000/douban.png" alt="豆瓣">
+                                    <span class="rating-score">${movie.doubanRating}</span>
+                                </div>
+                                <div class="rating-source" title="IMDb评分">
+                                    <img src="https://img.icons8.com/color/48/000000/imdb.png" alt="IMDb">
+                                    <span class="rating-score">${movie.imdbRating}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="movie-genre">
+                            ${movie.genres.map(genre => `<span class="genre-tag">${genre}</span>`).join('')}
+                        </div>
+                    </div>
+                `;
+                
+                movieCard.addEventListener('click', function() {
+                    window.location.href = `movie.html?id=${movie.id}`;
+                });
+                
+                moviesGrid.appendChild(movieCard);
+            });
+        }
+
+        // 更新分页
+        function updatePagination(totalPages) {
+            const pagination = document.getElementById('pagination');
+            
+            if (totalPages <= 1) {
+                pagination.style.display = 'none';
+                return;
+            } else {
+                pagination.style.display = 'flex';
+            }
+            
+            pagination.innerHTML = '';
+            
+            // 上一页按钮
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'page-btn';
+            prevBtn.innerHTML = '<i class="fas fa-angle-left"></i>';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.addEventListener('click', function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    updateMovies();
+                }
+            });
+            pagination.appendChild(prevBtn);
+            
+            // 页码按钮
+            let startPage = Math.max(1, currentPage - 2);
+            const endPage = Math.min(startPage + 4, totalPages);
+            
+            if (endPage - startPage < 4) {
+                startPage = Math.max(1, endPage - 4);
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.className = 'page-btn';
+                if (i === currentPage) pageBtn.classList.add('active');
+                pageBtn.textContent = i;
+                pageBtn.addEventListener('click', function() {
+                    currentPage = i;
+                    updateMovies();
+                });
+                pagination.appendChild(pageBtn);
+            }
+            
+            // 如果有更多页，添加省略号
+            if (endPage < totalPages) {
+                const ellipsis = document.createElement('button');
+                ellipsis.className = 'page-btn';
+                ellipsis.disabled = true;
+                ellipsis.innerHTML = '<i class="fas fa-ellipsis-h"></i>';
+                pagination.appendChild(ellipsis);
+                
+                const lastPageBtn = document.createElement('button');
+                lastPageBtn.className = 'page-btn';
+                lastPageBtn.textContent = totalPages;
+                lastPageBtn.addEventListener('click', function() {
+                    currentPage = totalPages;
+                    updateMovies();
+                });
+                pagination.appendChild(lastPageBtn);
+            }
+            
+            // 下一页按钮
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'page-btn';
+            nextBtn.innerHTML = '<i class="fas fa-angle-right"></i>';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.addEventListener('click', function() {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    updateMovies();
+                }
+            });
+            pagination.appendChild(nextBtn);
+        }
+
+        // 更新URL参数
+        function updateURLParameter(key, value) {
+            const url = new URL(window.location.href);
+            url.searchParams.set(key, value);
+            window.history.replaceState({}, '', url);
+        }
+
+        // 执行搜索
+        function performSearch(query) {
+            if (!query.trim()) return;
+            
+            // 在实际应用中，这应该是一个导航到搜索结果页面的操作
+            alert(`你正在搜索: ${query}\n这个功能将在后续版本中实现。`);
+            // window.location.href = `search.html?q=${encodeURIComponent(query)}`;
+        }
+    </script>
+</body>
+</html>

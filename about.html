@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>关于我们 - 猎户座影像空间</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 关于页面的特定样式 */
+        .about-banner {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://source.unsplash.com/random/1920x600/?cinema,theater');
+            background-size: cover;
+            background-position: center;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .banner-content h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .about-section {
+            max-width: 1000px;
+            margin: 0 auto 4rem;
+            padding: 0 2rem;
+        }
+        
+        .about-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .about-title {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .about-subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .mission-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .mission-item {
+            flex: 1 1 300px;
+            background-color: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: var(--box-shadow);
+            text-align: center;
+            transition: var(--transition);
+        }
+        
+        .mission-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .mission-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            background-color: rgba(52, 152, 219, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .mission-icon i {
+            font-size: 2.5rem;
+            color: var(--secondary-color);
+        }
+        
+        .mission-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+        
+        .mission-text {
+            line-height: 1.6;
+            color: #666;
+        }
+        
+        .story-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 3rem;
+            margin-bottom: 3rem;
+            box-shadow: var(--box-shadow);
+        }
+        
+        .story-title {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .story-content {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 3rem;
+        }
+        
+        .story-image {
+            flex: 1 1 300px;
+            height: 300px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+        }
+        
+        .story-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .story-text {
+            flex: 1 1 400px;
+            line-height: 1.8;
+        }
+        
+        .story-text p {
+            margin-bottom: 1rem;
+        }
+        
+        .team-container {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .team-title {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+        }
+        
+        .team-members {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 2rem;
+        }
+        
+        .team-member {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+        
+        .team-member:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .member-photo {
+            height: 220px;
+            overflow: hidden;
+        }
+        
+        .member-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+        
+        .team-member:hover .member-photo img {
+            transform: scale(1.05);
+        }
+        
+        .member-info {
+            padding: 1.5rem;
+        }
+        
+        .member-name {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+        
+        .member-role {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        
+        .member-social {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+        
+        .member-social a {
+            width: 36px;
+            height: 36px;
+            background-color: rgba(52, 152, 219, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--secondary-color);
+            transition: var(--transition);
+        }
+        
+        .member-social a:hover {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .contact-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+        
+        .contact-form {
+            flex: 1 1 400px;
+            background-color: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: var(--box-shadow);
+        }
+        
+        .contact-form h3 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-control {
+            display: block;
+            width: 100%;
+            padding: 0.8rem 1rem;
+            font-size: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+        
+        .form-control:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        textarea.form-control {
+            resize: vertical;
+            min-height: 150px;
+        }
+        
+        .btn-submit {
+            display: block;
+            width: 100%;
+            padding: 1rem;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .btn-submit:hover {
+            background-color: #2980b9;
+        }
+        
+        .contact-info {
+            flex: 1 1 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .contact-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: var(--box-shadow);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .contact-icon {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(52, 152, 219, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .contact-icon i {
+            font-size: 1.5rem;
+            color: var(--secondary-color);
+        }
+        
+        .contact-details h4 {
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+            color: var(--primary-color);
+        }
+        
+        .contact-details p {
+            color: #666;
+        }
+        
+        @media (max-width: 768px) {
+            .about-banner {
+                height: 200px;
+            }
+            
+            .banner-content h1 {
+                font-size: 2rem;
+            }
+            
+            .about-title {
+                font-size: 1.8rem;
+            }
+            
+            .about-section {
+                padding: 0 1rem;
+            }
+            
+            .story-container {
+                padding: 2rem;
+            }
+            
+            .mission-item {
+                flex: 1 1 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <h1><i class="fa-solid fa-film"></i> <a href="index.html">猎户座影像空间</a></h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">首页</a></li>
+                <li><a href="categories.html">分类</a></li>
+                <li><a href="trending.html">热门</a></li>
+                <li><a href="about.html" class="active">关于我们</a></li>
+            </ul>
+        </nav>
+        <div class="search-container">
+            <input type="text" placeholder="搜索电影..." id="search-input">
+            <button id="search-btn"><i class="fa-solid fa-search"></i></button>
+        </div>
+    </header>
+
+    <main>
+        <div class="about-banner">
+            <div class="banner-content">
+                <h1>关于猎户座影像空间</h1>
+                <p>分享电影，连接热爱电影的人</p>
+            </div>
+        </div>
+        
+        <section class="about-section">
+            <div class="about-header">
+                <h2 class="about-title">我们的故事</h2>
+                <p class="about-subtitle">猎户座影像空间始于一群电影爱好者的简单愿望：创造一个分享优质电影的平台，让更多人发现电影的魅力。</p>
+            </div>
+            
+            <div class="mission-container">
+                <div class="mission-item">
+                    <div class="mission-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <h3 class="mission-title">我们的愿景</h3>
+                    <p class="mission-text">成为中国最受欢迎的电影分享和交流平台，让每个人都能便捷地找到并欣赏优质电影，丰富精神世界。</p>
+                </div>
+                
+                <div class="mission-item">
+                    <div class="mission-icon">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <h3 class="mission-title">我们的使命</h3>
+                    <p class="mission-text">精心筛选、推荐全球优质电影资源，为用户提供便捷的观影体验，促进电影文化的传播和交流。</p>
+                </div>
+                
+                <div class="mission-item">
+                    <div class="mission-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h3 class="mission-title">我们的价值观</h3>
+                    <p class="mission-text">尊重电影创作、推崇艺术价值、注重用户体验、鼓励多元交流，让电影之光照亮每个人的生活。</p>
+                </div>
+            </div>
+            
+            <div class="story-container">
+                <h3 class="story-title">我们的起源故事</h3>
+                <div class="story-content">
+                    <div class="story-image">
+                        <img src="https://source.unsplash.com/random/600x600/?cinema,film,friends" alt="创始团队">
+                    </div>
+                    <div class="story-text">
+                        <p>2022年的一个深夜，几个电影爱好者在讨论如何与朋友们更便捷地分享自己喜爱的电影。大家发现，虽然现在有很多视频平台，但要找到真正优质的电影内容并不容易，而且对于真正的电影爱好者来说，缺少一个专注于电影艺术本身的分享空间。</p>
+                        <p>于是，"猎户座影像空间"的概念应运而生。我们希望创建一个平台，不仅可以便捷地观看电影，还能获取专业的影评和推荐，了解电影背后的故事，与志同道合的影迷交流。就像猎户座在夜空中闪耀，我们希望这个平台能成为电影爱好者的指引和聚集地。</p>
+                        <p>在创立初期，我们只是在小范围内分享，但随着口碑的传播，越来越多的人加入了这个"星空"。如今，猎户座影像空间已经发展成为一个拥有丰富内容的电影社区，但我们的初心从未改变：分享优质电影，连接热爱电影的人。</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="team-container">
+                <h3 class="team-title">我们的团队</h3>
+                <div class="team-members">
+                    <div class="team-member">
+                        <div class="member-photo">
+                            <img src="https://source.unsplash.com/random/300x300/?portrait,man" alt="张天明">
+                        </div>
+                        <div class="member-info">
+                            <h4 class="member-name">张天明</h4>
+                            <p class="member-role">创始人 & 首席执行官</p>
+                            <div class="member-social">
+                                <a href="#"><i class="fab fa-weibo"></i></a>
+                                <a href="#"><i class="fab fa-weixin"></i></a>
+                                <a href="#"><i class="fab fa-instagram"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="team-member">
+                        <div class="member-photo">
+                            <img src="https://source.unsplash.com/random/300x300/?portrait,woman" alt="李梦华">
+                        </div>
+                        <div class="member-info">
+                            <h4 class="member-name">李梦华</h4>
+                            <p class="member-role">内容总监</p>
+                            <div class="member-social">
+                                <a href="#"><i class="fab fa-weibo"></i></a>
+                                <a href="#"><i class="fab fa-weixin"></i></a>
+                                <a href="#"><i class="fab fa-instagram"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="team-member">
+                        <div class="member-photo">
+                            <img src="https://source.unsplash.com/random/300x300/?portrait,man,asian" alt="王俊杰">
+                        </div>
+                        <div class="member-info">
+                            <h4 class="member-name">王俊杰</h4>
+                            <p class="member-role">技术负责人</p>
+                            <div class="member-social">
+                                <a href="#"><i class="fab fa-weibo"></i></a>
+                                <a href="#"><i class="fab fa-github"></i></a>
+                                <a href="#"><i class="fab fa-linkedin"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="team-member">
+                        <div class="member-photo">
+                            <img src="https://source.unsplash.com/random/300x300/?portrait,woman,asian" alt="陈雨晴">
+                        </div>
+                        <div class="member-info">
+                            <h4 class="member-name">陈雨晴</h4>
+                            <p class="member-role">用户体验设计师</p>
+                            <div class="member-social">
+                                <a href="#"><i class="fab fa-weibo"></i></a>
+                                <a href="#"><i class="fab fa-behance"></i></a>
+                                <a href="#"><i class="fab fa-dribbble"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="contact-container">
+                <div class="contact-form">
+                    <h3>联系我们</h3>
+                    <form id="contact-form">
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="您的姓名" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" class="form-control" placeholder="您的邮箱" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="主题">
+                        </div>
+                        <div class="form-group">
+                            <textarea class="form-control" placeholder="您的留言..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn-submit">发送留言</button>
+                    </form>
+                </div>
+                
+                <div class="contact-info">
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h4>电子邮箱</h4>
+                            <p>contact@orioncinema.com</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h4>联系电话</h4>
+                            <p>+86 138 1234 5678</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h4>办公地址</h4>
+                            <p>北京市朝阳区建国路88号</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-card">
+                        <div class="contact-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="contact-details">
+                            <h4>工作时间</h4>
+                            <p>周一至周五: 09:00 - 18:00</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <h2>猎户座影像空间</h2>
+                <p>分享优质电影，连接电影爱好者</p>
+            </div>
+            <div class="footer-links">
+                <h3>快速链接</h3>
+                <ul>
+                    <li><a href="index.html">首页</a></li>
+                    <li><a href="categories.html">分类</a></li>
+                    <li><a href="trending.html">热门</a></li>
+                    <li><a href="about.html">关于我们</a></li>
+                </ul>
+            </div>
+            <div class="footer-social">
+                <h3>关注我们</h3>
+                <div class="social-icons">
+                    <a href="#"><i class="fa-brands fa-weibo"></i></a>
+                    <a href="#"><i class="fa-brands fa-weixin"></i></a>
+                    <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2023 猎户座影像空间. 保留所有权利.</p>
+        </div>
+    </footer>
+
+    <script>
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 联系表单提交
+            const contactForm = document.getElementById('contact-form');
+            if (contactForm) {
+                contactForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    alert('感谢您的留言！我们会尽快回复您。');
+                    contactForm.reset();
+                });
+            }
+            
+            // 搜索功能
+            const searchBtn = document.getElementById('search-btn');
+            const searchInput = document.getElementById('search-input');
+            
+            searchBtn.addEventListener('click', function() {
+                if (searchInput.value.trim()) {
+                    alert(`你正在搜索: ${searchInput.value}\n这个功能将在后续版本中实现。`);
+                }
+            });
+            
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && searchInput.value.trim()) {
+                    alert(`你正在搜索: ${searchInput.value}\n这个功能将在后续版本中实现。`);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

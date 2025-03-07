@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>猎户座影像空间 - 优质电影分享平台</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <h1><i class="fa-solid fa-film"></i> 猎户座影像空间</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#" class="active">首页</a></li>
+                <li><a href="categories.html">分类</a></li>
+                <li><a href="trending.html">热门</a></li>
+                <li><a href="about.html">关于我们</a></li>
+            </ul>
+        </nav>
+        <div class="search-container">
+            <input type="text" placeholder="搜索电影..." id="search-input">
+            <button id="search-btn"><i class="fa-solid fa-search"></i></button>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <h2>发现优质电影</h2>
+                <p>猎户座影像空间，与朋友共享佳片时光</p>
+                <button class="cta-button">开始探索</button>
+            </div>
+        </section>
+
+        <section class="featured-movies">
+            <h2 class="section-title">精选推荐</h2>
+            <div class="movies-grid" id="featured-movies-container">
+                <!-- 电影卡片将通过JavaScript动态加载 -->
+            </div>
+        </section>
+
+        <section class="rating-chart">
+            <h2 class="section-title">评分分布</h2>
+            <div class="chart-container">
+                <div id="rating-visualization"></div>
+            </div>
+        </section>
+
+        <section class="trending-movies">
+            <h2 class="section-title">热门影片</h2>
+            <div class="movies-grid" id="trending-movies-container">
+                <!-- 电影卡片将通过JavaScript动态加载 -->
+            </div>
+        </section>
+
+        <section class="categories">
+            <h2 class="section-title">电影分类</h2>
+            <div class="categories-container">
+                <a href="categories.html?genre=action" class="category-card">
+                    <i class="fa-solid fa-fire"></i>
+                    <h3>动作</h3>
+                </a>
+                <a href="categories.html?genre=drama" class="category-card">
+                    <i class="fa-solid fa-masks-theater"></i>
+                    <h3>剧情</h3>
+                </a>
+                <a href="categories.html?genre=comedy" class="category-card">
+                    <i class="fa-solid fa-face-laugh"></i>
+                    <h3>喜剧</h3>
+                </a>
+                <a href="categories.html?genre=scifi" class="category-card">
+                    <i class="fa-solid fa-rocket"></i>
+                    <h3>科幻</h3>
+                </a>
+                <a href="categories.html?genre=horror" class="category-card">
+                    <i class="fa-solid fa-ghost"></i>
+                    <h3>恐怖</h3>
+                </a>
+                <a href="categories.html?genre=romance" class="category-card">
+                    <i class="fa-solid fa-heart"></i>
+                    <h3>爱情</h3>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <h2>猎户座影像空间</h2>
+                <p>分享优质电影，连接电影爱好者</p>
+            </div>
+            <div class="footer-links">
+                <h3>快速链接</h3>
+                <ul>
+                    <li><a href="index.html">首页</a></li>
+                    <li><a href="categories.html">分类</a></li>
+                    <li><a href="trending.html">热门</a></li>
+                    <li><a href="about.html">关于我们</a></li>
+                </ul>
+            </div>
+            <div class="footer-social">
+                <h3>关注我们</h3>
+                <div class="social-icons">
+                    <a href="#"><i class="fa-brands fa-weibo"></i></a>
+                    <a href="#"><i class="fa-brands fa-weixin"></i></a>
+                    <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2023 猎户座影像空间. 保留所有权利.</p>
+        </div>
+    </footer>
+
+    <script src="scripts.js"></script>
+</body>
+</html>

@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>热门电影 - 猎户座影像空间</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        /* 热门页面的特定样式 */
+        .trending-banner {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://source.unsplash.com/random/1920x600/?cinema,movie,popcorn');
+            background-size: cover;
+            background-position: center;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .banner-content h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .banner-content p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .trending-section {
+            padding: 0 5%;
+            margin-bottom: 3rem;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .section-title i {
+            color: var(--secondary-color);
+        }
+        
+        .time-filter {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .time-btn {
+            padding: 0.5rem 1rem;
+            background-color: #f5f5f5;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .time-btn:hover, .time-btn.active {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .trending-chart {
+            background-color: white;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            box-shadow: var(--box-shadow);
+        }
+        
+        .chart-container {
+            height: 400px;
+        }
+        
+        .trending-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .trending-movie {
+            display: flex;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        
+        .trending-movie:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .trending-poster {
+            width: 120px;
+            height: 180px;
+            flex-shrink: 0;
+        }
+        
+        .trending-poster img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .trending-info {
+            padding: 1rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .trending-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+        }
+        
+        .trending-meta {
+            color: #666;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .trending-rating {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .rating-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            background-color: rgba(52, 152, 219, 0.1);
+            padding: 0.3rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        .rating-badge img {
+            width: 16px;
+            height: 16px;
+        }
+        
+        .trending-tags {
+            margin-top: auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.3rem;
+        }
+        
+        .trending-tag {
+            font-size: 0.8rem;
+            background-color: #f5f5f5;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+        }
+        
+        .trending-rank {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: var(--secondary-color);
+            color: white;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .weekly-trending {
+            margin-top: 3rem;
+        }
+        
+        .popular-actors {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+        
+        .actor-card {
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .actor-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .actor-photo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin: 0 auto 1rem;
+            box-shadow: var(--box-shadow);
+        }
+        
+        .actor-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .actor-name {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+        
+        .actor-movies {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .trending-banner {
+                height: 200px;
+            }
+            
+            .banner-content h1 {
+                font-size: 2rem;
+            }
+            
+            .trending-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .popular-actors {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+            
+            .actor-photo {
+                width: 120px;
+                height: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <h1><i class="fa-solid fa-film"></i> <a href="index.html">猎户座影像空间</a></h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">首页</a></li>
+                <li><a href="categories.html">分类</a></li>
+                <li><a href="trending.html" class="active">热门</a></li>
+                <li><a href="about.html">关于我们</a></li>
+            </ul>
+        </nav>
+        <div class="search-container">
+            <input type="text" placeholder="搜索电影..." id="search-input">
+            <button id="search-btn"><i class="fa-solid fa-search"></i></button>
+        </div>
+    </header>
+
+    <main>
+        <div class="trending-banner">
+            <div class="banner-content">
+                <h1>热门影片</h1>
+                <p>发现当下最受欢迎的电影，跟上最新的观影潮流</p>
+            </div>
+        </div>
+        
+        <section class="trending-section">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-fire"></i> 本周热门电影
+                </h2>
+                <div class="time-filter">
+                    <button class="time-btn active" data-time="day">今日</button>
+                    <button class="time-btn" data-time="week">本周</button>
+                    <button class="time-btn" data-time="month">本月</button>
+                </div>
+            </div>
+            
+            <div class="trending-chart">
+                <div class="chart-container" id="trending-chart"></div>
+            </div>
+            
+            <div class="daily-trending">
+                <div class="trending-list" id="daily-trending-list">
+                    <!-- 热门电影将通过JavaScript动态加载 -->
+                </div>
+            </div>
+            
+            <div class="weekly-trending" style="display: none;">
+                <div class="trending-list" id="weekly-trending-list">
+                    <!-- 热门电影将通过JavaScript动态加载 -->
+                </div>
+            </div>
+            
+            <div class="monthly-trending" style="display: none;">
+                <div class="trending-list" id="monthly-trending-list">
+                    <!-- 热门电影将通过JavaScript动态加载 -->
+                </div>
+            </div>
+        </section>
+        
+        <section class="trending-section">
+            <h2 class="section-title">
+                <i class="fas fa-user"></i> 热门演员
+            </h2>
+            <div class="popular-actors" id="popular-actors">
+                <!-- 热门演员将通过JavaScript动态加载 -->
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <h2>猎户座影像空间</h2>
+                <p>分享优质电影，连接电影爱好者</p>
+            </div>
+            <div class="footer-links">
+                <h3>快速链接</h3>
+                <ul>
+                    <li><a href="index.html">首页</a></li>
+                    <li><a href="categories.html">分类</a></li>
+                    <li><a href="trending.html">热门</a></li>
+                    <li><a href="about.html">关于我们</a></li>
+                </ul>
+            </div>
+            <div class="footer-social">
+                <h3>关注我们</h3>
+                <div class="social-icons">
+                    <a href="#"><i class="fa-brands fa-weibo"></i></a>
+                    <a href="#"><i class="fa-brands fa-weixin"></i></a>
+                    <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="copyright">
+            <p>&copy; 2023 猎户座影像空间. 保留所有权利.</p>
+        </div>
+    </footer>
+
+    <script>
+        // 模拟电影数据 - 在实际应用中，应该从服务器获取
+        const trendingMovies = {
+            day: [
+                {
+                    id: 8,
+                    title: "星际穿越",
+                    year: 2014,
+                    director: "克里斯托弗·诺兰",
+                    genres: ["科幻", "冒险", "剧情"],
+                    posterUrl: "https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2614988097.jpg",
+                    doubanRating: 9.3,
+                    imdbRating: 8.6,
+                    viewCount: 12500
+                },
+                {
+                    id: 7,
+                    title: "盗梦空间",
+                    year: 2010,
+                    director: "克里斯托弗·诺兰",
+                    genres: ["科幻", "悬疑", "冒险"],
+                    posterUrl: "https://img9.doubanio.com/view/photo/s_ratio_poster/public/p513344864.jpg",
+                    doubanRating: 9.3,
+                    imdbRating: 8.8,
+                    viewCount: 11800
+                },
+                {
+                    id: 6,
+                    title: "千与千寻",
+                    year: 2001,
+                    director: "宫崎骏",
+                    genres: ["动画", "奇幻", "冒险"],
+                    posterUrl: "https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2557573348.jpg",
+                    doubanRating: 9.4,
+                    imdbRating: 8.6,
+                    viewCount: 10200
+                },
+                {
+                    id: 1,
+                    title: "肖申克的救赎",
+                    year: 1994,
+                    director: "弗兰克·德拉邦特",
+                    genres: ["剧情", "犯罪"],
+                    posterUrl: "https://img2.doubanio.com/view/photo/s_ratio_poster/public/p480747492.jpg",
+                    doubanRating: 9.7,
+                    imdbRating: 9.3,
+                    viewCount: 9500
+                },
+                {
+                    id: 2,
+                    title: "霸王别姬",
+                    year: 1993,
+                    director: "陈凯歌",
+                    genres: ["剧情", "爱情", "同性"],
+                    posterUrl: "https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2561716440.jpg",
+                    doubanRating: 9.6,
+                    imdbRating: 8.1,
+                    viewCount: 8900
+                },
+                {
+                    id: 3,
+                    title: "阿甘正传",
+                    year: 1994,
+                    director: "罗伯特·泽米吉斯",
+                    genres: ["剧情", "爱情"],
+                    posterUrl: "https://img2.doubanio.com/view/photo/s_ratio_poster/public/p2372307693.jpg",
+                    doubanRating: 9.5,
+                    imdbRating: 8.8,
+                    viewCount: 8500
+                }
+            ],
+            week: [
+                {
+                    id: 1,
+                    title: "肖申克的救赎",
+                    year: 1994,
+                    director: "弗兰克·德拉邦特",
+                    genres: ["剧情", "犯罪"],
+                    posterUrl: "https://img2.doubanio.com/view/photo/s_ratio_poster/public/p480747492.jpg",
+                    doubanRating: 9.7,
+                    imdbRating: 9.3,
+                    viewCount: 56700
+                },
+                {
+                    id: 2,
+                    title: "霸王别姬",
+                    year: 1993,
+                    director: "陈凯歌",
+                    genres: ["剧情", "爱情", "同性"],
+                    posterUrl: "https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2561716440.jpg",
+                    doubanRating: 9.6,
+                    imdbRating: 8.1,
+                    viewCount: 51200
+                },
+                {
+                    id: 3,
+                    title: "阿甘正传",
+                    year: 1994,
+                    director: "罗伯特·泽米吉斯",
+                    genres: ["剧情", "爱情"],
+                    posterUrl: "https://img2.doubanio.com/view/photo/s_ratio_poster/public/p2372307693.jpg",
+                    doubanRating: 9.5,
+                    imdbRating: 8.8,
+                    viewCount: 48900
+                },
+                {
+                    id: 7,
+                    title: "盗梦空间",
+                    year: 2010,
+                    director: "克里斯托弗·诺兰",
+                    genres: ["科幻", "悬疑", "冒险"],
+                    posterUrl: "https://img9.doubanio.com/view/photo/s_ratio_poster/public/p513344864.jpg",
+                    doubanRating: 9.3,
+                    imdbRating: 8.8,
+                    viewCount: 45600
+                },
+                {
+                    id: 8,
+                    title: "星际穿越",
+                    year: 2014,
+                    director: "克里斯托弗·诺兰",
+                    genres: ["科幻", "冒险", "剧情"],
+                    posterUrl: "https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2614988097.jpg",
+                    doubanRating: 9.3,
+                    imdbRating: 8.6,
+                    viewCount: 43200
+                },
+                {
+                    id: 6,
+                    title: "千与千寻",
+                    year: 2001,
+                    director: "宫崎骏",
+                    genres: ["动画", "奇幻", "冒险"],
+                    posterUrl: "https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2557573348.jpg",
+                    doubanRating: 9.4,
+                    imdbRating: 8.6,
+                    viewCount: 42800
+                }
+            ],
+            month: [
+                {
+                    id: 1,
+                    title: "肖申克的救赎",
+                    year: 1994,
+                    director: "弗兰克·德拉邦特",
+                    genres: ["剧情", "犯罪"],
+                    posterUrl: "https://img2.doubanio.com/view/photo/s_ratio_poster/public/p480747492.jpg",
+                    doubanRating: 9.7,
+                    imdbRating: 9.3,
+                    viewCount: 189500
+                },
+                {
+                    id: 3,
+                    title: "阿甘正传",
+                    year: 1994,
+                    director: "罗伯特·泽米吉斯",
+                    genres: ["剧情", "爱情"],
+                    posterUrl: "https://img2.doubanio.com/view/photo/s_ratio_poster/public/p2372307693.jpg",
+                    doubanRating: 9.5,
+                    imdbRating: 8.8,
+                    viewCount: 175200
+                },
+                {
+                    id: 2,
+                    title: "霸王别姬",
+                    year: 1993,
+                    director: "陈凯歌",
+                    genres: ["剧情", "爱情", "同性"],
+                    posterUrl: "https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2561716440.jpg",
+                    doubanRating: 9.6,
+                    imdbRating: 8.1,
+                    viewCount: 168900
+                },
+                {
+                    id: 6,
+                    title: "千与千寻",
+                    year: 2001,
+                    director: "宫崎骏",
+                    genres: ["动画", "奇幻", "冒险"],
+                    posterUrl: "https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2557573348.jpg",
+                    doubanRating: 9.4,
+                    imdbRating: 8.6,
+                    viewCount: 159200
+                },
+                {
+                    id: 7,
+                    title: "盗梦空间",
+                    year: 2010,
+                    director: "克里斯托弗·诺兰",
+                    genres: ["科幻", "悬疑", "冒险"],
+                    posterUrl: "https://img9.doubanio.com/view/photo/s_ratio_poster/public/p513344864.jpg",
+                    doubanRating: 9.3,
+                    imdbRating: 8.8,
+                    viewCount: 157800
+                },
+                {
+                    id: 8,
+                    title: "星际穿越",
+                    year: 2014,
+                    director: "克里斯托弗·诺兰",
+                    genres: ["科幻", "冒险", "剧情"],
+                    posterUrl: "https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2614988097.jpg",
+                    doubanRating: 9.3,
+                    imdbRating: 8.6,
+                    viewCount: 148500
+                }
+            ]
+        };
+
+        // 热门演员数据
+        const popularActors = [
+            {
+                name: "汤姆·汉克斯",
+                englishName: "Tom Hanks",
+                photoUrl: "https://i.loli.net/2021/07/31/R3JiV9vXxTjdU5b.jpg",
+                movieCount: 42
+            },
+            {
+                name: "莱昂纳多·迪卡普里奥",
+                englishName: "Leonardo DiCaprio",
+                photoUrl: "https://i.loli.net/2021/07/31/1XBuQP4mxsVgbpA.jpg",
+                movieCount: 30
+            },
+            {
+                name: "张国荣",
+                englishName: "Leslie Cheung",
+                photoUrl: "https://i.loli.net/2021/07/31/TsXDx4jOKiJYEBt.jpg",
+                movieCount: 26
+            },
+            {
+                name: "章子怡",
+                englishName: "Zhang Ziyi",
+                photoUrl: "https://i.loli.net/2021/07/31/yHMpirwE46YnLbA.jpg",
+                movieCount: 22
+            },
+            {
+                name: "梅丽尔·斯特里普",
+                englishName: "Meryl Streep",
+                photoUrl: "https://i.loli.net/2021/07/31/S2jRZtamopXbBFY.jpg",
+                movieCount: 38
+            },
+            {
+                name: "布拉德·皮特",
+                englishName: "Brad Pitt",
+                photoUrl: "https://i.loli.net/2021/07/31/pjw65bsfZlNXE9L.jpg",
+                movieCount: 35
+            },
+            {
+                name: "巩俐",
+                englishName: "Gong Li",
+                photoUrl: "https://i.loli.net/2021/07/31/OGixpR7o2Ctb4MX.jpg",
+                movieCount: 20
+            },
+            {
+                name: "罗伯特·唐尼",
+                englishName: "Robert Downey Jr.",
+                photoUrl: "https://i.loli.net/2021/07/31/DQxYHMiLlR6dtov.jpg",
+                movieCount: 28
+            }
+        ];
+
+        // 当前选中的时间范围
+        let currentTime = 'day';
+
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 更新热门电影列表
+            updateTrendingMovies(currentTime);
+            
+            // 创建热门电影趋势图表
+            createTrendingChart();
+            
+            // 渲染热门演员
+            renderPopularActors();
+            
+            // 添加时间筛选事件监听器
+            document.querySelectorAll('.time-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentTime = this.dataset.time;
+                    
+                    // 隐藏所有列表
+                    document.querySelector('.daily-trending').style.display = 'none';
+                    document.querySelector('.weekly-trending').style.display = 'none';
+                    document.querySelector('.monthly-trending').style.display = 'none';
+                    
+                    // 显示选中的列表
+                    if (currentTime === 'day') {
+                        document.querySelector('.daily-trending').style.display = 'block';
+                    } else if (currentTime === 'week') {
+                        document.querySelector('.weekly-trending').style.display = 'block';
+                    } else if (currentTime === 'month') {
+                        document.querySelector('.monthly-trending').style.display = 'block';
+                    }
+                    
+                    // 更新图表
+                    updateTrendingChart(currentTime);
+                });
+            });
+            
+            // 搜索功能
+            const searchBtn = document.getElementById('search-btn');
+            const searchInput = document.getElementById('search-input');
+            
+            searchBtn.addEventListener('click', function() {
+                performSearch(searchInput.value);
+            });
+            
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch(searchInput.value);
+                }
+            });
+        });
+
+        // 更新热门电影列表
+        function updateTrendingMovies(timeRange) {
+            const dailyTrendingList = document.getElementById('daily-trending-list');
+            const weeklyTrendingList = document.getElementById('weekly-trending-list');
+            const monthlyTrendingList = document.getElementById('monthly-trending-list');
+            
+            // 清空列表
+            dailyTrendingList.innerHTML = '';
+            weeklyTrendingList.innerHTML = '';
+            monthlyTrendingList.innerHTML = '';
+            
+            // 渲染每个时间范围的热门电影
+            renderTrendingList(trendingMovies.day, dailyTrendingList);
+            renderTrendingList(trendingMovies.week, weeklyTrendingList);
+            renderTrendingList(trendingMovies.month, monthlyTrendingList);
+            
+            // 默认显示当前选中的列表
+            document.querySelector('.daily-trending').style.display = currentTime === 'day' ? 'block' : 'none';
+            document.querySelector('.weekly-trending').style.display = currentTime === 'week' ? 'block' : 'none';
+            document.querySelector('.monthly-trending').style.display = currentTime === 'month' ? 'block' : 'none';
+        }
+
+        // 渲染热门电影列表
+        function renderTrendingList(movies, container) {
+            movies.forEach((movie, index) => {
+                const movieElement = document.createElement('div');
+                movieElement.className = 'trending-movie';
+                movieElement.style.position = 'relative';
+                
+                movieElement.innerHTML = `
+                    <div class="trending-rank">${index + 1}</div>
+                    <div class="trending-poster">
+                        <img src="${movie.posterUrl}" alt="${movie.title}">
+                    </div>
+                    <div class="trending-info">
+                        <h3 class="trending-title">${movie.title}</h3>
+                        <div class="trending-meta">${movie.year} · ${movie.director}</div>
+                        <div class="trending-rating">
+                            <div class="rating-badge">
+                                <img src="https://img.icons8.com/color/48/000000/douban.png" alt="豆瓣">
+                                <span>${movie.doubanRating}</span>
+                            </div>
+                            <div class="rating-badge">
+                                <img src="https://img.icons8.com/color/48/000000/imdb.png" alt="IMDb">
+                                <span>${movie.imdbRating}</span>
+                            </div>
+                        </div>
+                        <div class="trending-views">
+                            <i class="fas fa-eye"></i> ${formatNumber(movie.viewCount)} 次观看
+                        </div>
+                        <div class="trending-tags">
+                            ${movie.genres.map(genre => `<span class="trending-tag">${genre}</span>`).join('')}
+                        </div>
+                    </div>
+                `;
+                
+                movieElement.addEventListener('click', function() {
+                    window.location.href = `movie.html?id=${movie.id}`;
+                });
+                
+                container.appendChild(movieElement);
+            });
+        }
+
+        // 创建热门电影趋势图表
+        function createTrendingChart() {
+            updateTrendingChart(currentTime);
+        }
+
+        // 更新热门电影趋势图表
+        function updateTrendingChart(timeRange) {
+            const chartContainer = document.getElementById('trending-chart');
+            chartContainer.innerHTML = '';
+            
+            const movies = trendingMovies[timeRange];
+            const top5Movies = movies.slice(0, 5);
+            
+            // 设置图表尺寸和边距
+            const margin = { top: 20, right: 30, bottom: 60, left: 60 };
+            const width = chartContainer.clientWidth - margin.left - margin.right;
+            const height = 350 - margin.top - margin.bottom;
+            
+            // 创建SVG元素
+            const svg = d3.select(chartContainer)
+                .append('svg')
+                .attr('width', width + margin.left + margin.right)
+                .attr('height', height + margin.top + margin.bottom)
+                .append('g')
+                .attr('transform', `translate(${margin.left},${margin.top})`);
+            
+            // X轴比例尺
+            const x = d3.scaleBand()
+                .domain(top5Movies.map(d => d.title))
+                .range([0, width])
+                .padding(0.3);
+            
+            // Y轴比例尺
+            const y = d3.scaleLinear()
+                .domain([0, d3.max(top5Movies, d => d.viewCount) * 1.1])
+                .range([height, 0]);
+            
+            // 添加X轴
+            svg.append('g')
+                .attr('transform', `translate(0,${height})`)
+                .call(d3.axisBottom(x))
+                .selectAll('text')
+                .attr('transform', 'translate(-10,5)rotate(-45)')
+                .style('text-anchor', 'end')
+                .style('font-size', '12px');
+            
+            // 添加Y轴
+            svg.append('g')
+                .call(d3.axisLeft(y)
+                    .ticks(5)
+                    .tickFormat(d => formatNumber(d))
+                );
+            
+            // 添加Y轴标签
+            svg.append('text')
+                .attr('transform', 'rotate(-90)')
+                .attr('y', 0 - margin.left)
+                .attr('x', 0 - (height / 2))
+                .attr('dy', '1em')
+                .style('text-anchor', 'middle')
+                .style('font-size', '12px')
+                .text('观看次数');
+            
+            // 定义渐变
+            const gradient = svg.append('defs')
+                .append('linearGradient')
+                .attr('id', 'bar-gradient')
+                .attr('x1', '0%')
+                .attr('y1', '0%')
+                .attr('x2', '0%')
+                .attr('y2', '100%');
+            
+            gradient.append('stop')
+                .attr('offset', '0%')
+                .attr('stop-color', '#3498db');
+            
+            gradient.append('stop')
+                .attr('offset', '100%')
+                .attr('stop-color', '#2980b9');
+            
+            // 添加柱状图
+            svg.selectAll('.bar')
+                .data(top5Movies)
+                .enter()
+                .append('rect')
+                .attr('class', 'bar')
+                .attr('x', d => x(d.title))
+                .attr('width', x.bandwidth())
+                .attr('y', d => y(d.viewCount))
+                .attr('height', d => height - y(d.viewCount))
+                .attr('fill', 'url(#bar-gradient)')
+                .attr('rx', 5)
+                .attr('ry', 5);
+            
+            // 添加数值标签
+            svg.selectAll('.label')
+                .data(top5Movies)
+                .enter()
+                .append('text')
+                .attr('class', 'label')
+                .attr('x', d => x(d.title) + x.bandwidth() / 2)
+                .attr('y', d => y(d.viewCount) - 10)
+                .attr('text-anchor', 'middle')
+                .style('font-size', '12px')
+                .text(d => formatNumber(d.viewCount));
+            
+            // 添加图表标题
+            let titleText;
+            switch (timeRange) {
+                case 'day':
+                    titleText = '今日热门电影 - 观看次数';
+                    break;
+                case 'week':
+                    titleText = '本周热门电影 - 观看次数';
+                    break;
+                case 'month':
+                    titleText = '本月热门电影 - 观看次数';
+                    break;
+            }
+            
+            svg.append('text')
+                .attr('x', width / 2)
+                .attr('y', 0 - (margin.top / 2))
+                .attr('text-anchor', 'middle')
+                .style('font-size', '16px')
+                .style('font-weight', 'bold')
+                .text(titleText);
+        }
+
+        // 渲染热门演员
+        function renderPopularActors() {
+            const actorsContainer = document.getElementById('popular-actors');
+            
+            popularActors.forEach(actor => {
+                const actorElement = document.createElement('div');
+                actorElement.className = 'actor-card';
+                
+                actorElement.innerHTML = `
+                    <div class="actor-photo">
+                        <img src="${actor.photoUrl}" alt="${actor.name}">
+                    </div>
+                    <h3 class="actor-name">${actor.name}</h3>
+                    <div class="actor-movies">${actor.movieCount} 部作品</div>
+                `;
+                
+                actorsContainer.appendChild(actorElement);
+            });
+        }
+
+        // 格式化数字
+        function formatNumber(num) {
+            if (num >= 10000) {
+                return (num / 10000).toFixed(1) + '万';
+            }
+            return num.toString();
+        }
+
+        // 执行搜索
+        function performSearch(query) {
+            if (!query.trim()) return;
+            
+            // 在实际应用中，这应该是一个导航到搜索结果页面的操作
+            alert(`你正在搜索: ${query}\n这个功能将在后续版本中实现。`);
+            // window.location.href = `search.html?q=${encodeURIComponent(query)}`;
+        }
+
+        // 响应式处理
+        window.addEventListener('resize', function() {
+            // 重新渲染图表
+            updateTrendingChart(currentTime);
+        });
+    </script>
+</body>
+</html>
